@@ -1,0 +1,33 @@
+extends layout
+
+block content
+
+    div.container
+        h2 #{title}
+        hr
+        form(action=`api/verify-phone`)
+            div.form-group
+                label(for="exampleInputPhone") Номер телефона
+                input(
+                    data-mask="+7 (000) 000 00 00"
+                    name="phone"
+                    type="text"
+                    class="form-control "
+                    id="exampleInputPhone"
+                    aria-describedby="validatedInputGroupPrepend"
+                    required
+                )
+                div(class="valid-feedback d-none") Имя организации, в случае верификации
+                div(class="invalid-feedback d-none") Ошибка соединения с сервером
+            div.form-group
+                label(for="exampleInputName") Имя
+                input(
+                    name="name"
+                    type="text"
+                    class="form-control"
+                    id="exampleInputName"
+                    autocomplete="off"
+                    maxlength="30"
+                )
+            div(class="form-group form-check")
+            button(type="submit" class="btn btn-primary") Submit

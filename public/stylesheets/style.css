@@ -1,0 +1,26 @@
+.verifying {
+  background-image: url("../images/verifying.svg") !important;
+  border-color: #ced4da !important;
+}
+
+body {
+  padding: 75px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+/*.fix-rounded-right {*/
+/*  border-top-right-radius: .2rem !important;*/
+/*  border-bottom-right-radius: .2rem !important;*/
+/*}*/
+
+.container {
+  max-width: 576px !important;
+}
+
+.bg-light {
+  background-color: #f8f9fa!important;
+}
+
+a {
+  color: #00B7FF;
+}
