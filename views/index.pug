@@ -5,9 +5,10 @@ block content
     div.container
         h2 #{title}
         hr
-        form(action=`api/verify-phone`)
+        form(id=`question-form` action=`api/verify-phone`)
+            h5 Номер телефона
             div.form-group
-                label(for="exampleInputPhone") Номер телефона
+                //label(for="exampleInputPhone") Номер телефона
                 input(
                     data-mask="+7 (000) 000 00 00"
                     name="phone"
@@ -19,8 +20,10 @@ block content
                 )
                 div(class="valid-feedback d-none") Имя организации, в случае верификации
                 div(class="invalid-feedback d-none") Ошибка соединения с сервером
-            div.form-group
-                label(for="exampleInputName") Имя
+
+            h5 Имя
+            div.input-group
+                //label(for="exampleInputName") Имя
                 input(
                     name="name"
                     type="text"
@@ -29,8 +32,35 @@ block content
                     autocomplete="off"
                     maxlength="30"
                 )
-            //div(class="form-group form-check")
+                //div(class="input-group-append")
+                //    button(
+                //        type="button"
+                //        class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                //        data-toggle="dropdown"
+                //        aria-haspopup="true"
+                //        aria-expanded="false"
+                //    )
+                //        span.sr-only Toggle Dropdown
+                //    div.dropdown-menu
+                //        a(class="dropdown-item" href="#") Action
+                //        a(class="dropdown-item" href="#") Another action
+                //        a(class="dropdown-item" href="#") Something else here
+            br
+            h5 Текст обращения
             div.form-group
-                label(for="exampleFormControlTextarea1") Текст обращения
+                //label(for="exampleFormControlTextarea1") Текст обращения
                 textarea(class="form-control" id="exampleFormControlTextarea1" rows="5")
             button(type="submit" class="btn btn-primary") Отправить
+
+
+
+            //div.form-group
+            //    label(for="exampleInputName") Имя
+            //    input(
+            //        name="name"
+            //        type="text"
+            //        class="form-control"
+            //        id="exampleInputName"
+            //        autocomplete="off"
+            //        maxlength="30"
+            //    )

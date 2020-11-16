@@ -43,15 +43,33 @@ function debounce(f, ms) {
 
 }
 
-$(function () {
+$(() => {
+    const dropDownTemplate = `
+        <div id="dropDown" class="input-group-append">
+            <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu">
+            </div>
+        </div>
+    `;
+    const dropDownItemTemplate = `<a class="dropdown-item" href="#">[title]</a>`;
+
+
     const $phoneInput = $(`#exampleInputPhone`);
     const $phoneValid = $(`.valid-feedback`);
     const $phoneInValid = $(`.invalid-feedback`);
     const $nameInput = $(`#exampleInputName`);
 
-    let jqxhr;
+    const $form = $(`#question-form`);
 
-    $phoneInput.on(`input`, throttle(function (e) {
+    $form.submit(e => {
+        e.preventDefault();
+        console.log(`prevented`);
+    });
+
+    let jqxhr;
+    $phoneInput.on(`input`, throttle(e => {
         const max_len = 18;
         const target = e.target;
         let value = target.value;
@@ -69,8 +87,8 @@ $(function () {
                 url: `api/verify-phone`,
                 method: `GET`,
                 data: {phone: value},
-                beforeSend: function (xhr) {
-                    if(jqxhr) {
+                beforeSend: xhr => {
+                    if (jqxhr) {
                         jqxhr.abort();
                     }
                     /**
@@ -78,47 +96,107 @@ $(function () {
                      *
                      *  Убрать невалидные классы ошибок, если есть
                      * */
-                    $phoneInput.removeClass(`is-invalid`);
                     $phoneInValid.addClass(`d-none`);
-                    $phoneInput.addClass(`is-valid verifying`);
+                    $phoneInput
+                        .removeClass(`is-invalid`)
+                        .addClass(`is-valid verifying`);
                 }
             })
-                .done(function (data, textStatus, jqXHR) {
+                .done((data, textStatus, jqXHR) => {
                     if (data.length > 0) {
                         const titles = [...new Set(data.map(v => v[`title`]))];
                         const names = [...new Set(data.map(v => v[`name`]))];
 
-                        $phoneInput.removeClass(`verifying`);
-                        $phoneValid.removeClass(`d-none`);
-                        $phoneValid.text(titles);
+                        if (data.length > 1) {
+                            /**
+                             *  Добавляем динамический контент
+                             * */
+                            $nameInput.after(dropDownTemplate);
+                            const $dropDownMenu = $(`.dropdown-menu`);
 
-                        $nameInput.addClass(`is-valid`);
-                        $nameInput.val(names);
+                            for (const name of names) {
+                                // console.log(name);
+                                $dropDownMenu.append(dropDownItemTemplate.replace(`[title]`, name));
+                            }
+
+
+                            const $dropdownMenuLinks = $(`.dropdown-menu a`);
+                            const firstMenuTitle = $dropdownMenuLinks.first().text();
+
+                            $nameInput.val(firstMenuTitle);
+
+                            /**
+                             *  Вешаем обработчики событий
+                             * */
+                            $dropdownMenuLinks.on(`click`, e => {
+                                e.preventDefault();
+                                const link = $(e.target);
+
+                                $nameInput.val(link.text());
+                            });
+                        } else  {
+                            /**
+                             *  Удаляем динамический контент
+                             * */
+                            $(`#dropDown`).remove();
+
+                            $nameInput.val(names);
+                        }
+
+                        $phoneInput.removeClass(`verifying`);
+                        $phoneValid.removeClass(`d-none`)
+                            .text(titles);
+
+                        $nameInput.addClass(`is-valid`)
+
                     } else {
+                        /**
+                         *  Удаляем динамический контент
+                         * */
+                        $(`#dropDown`).remove();
+
                         $phoneInput.removeClass(`is-valid verifying`);
                         $phoneValid.addClass(`d-none`);
                         $nameInput.removeClass(`is-valid`);
                         $nameInput.val(``);
                     }
                 })
-                .fail(function (jqXHR, textStatus, errorThrown) {
+                .fail((jqXHR, textStatus, errorThrown) => {
+                    /**
+                     *  Удаляем динамический контент
+                     * */
+                    $(`#dropDown`).remove();
+
                     /**
                      *  Добавить классы вывода сообщений об ошибках
                      * */
                     $phoneInput
                         .removeClass(`is-valid verifying`)
                         .addClass(`is-invalid`);
+
                     $phoneValid.addClass(`d-none`);
-                    $nameInput.removeClass(`is-valid`);
-                    $nameInput.val(``);
+
+                    $nameInput
+                        .removeClass(`is-valid`)
+                        .val(``);
+
                     $phoneInValid.removeClass(`d-none`);
                 })
-                .always(function (jqXHR, textStatus, errorThrown) {
+                .always((jqXHR, textStatus, errorThrown) => {
                     // console.log(jqXHR, textStatus, errorThrown)
                 });
         }
 
     }, 550));
+
+    // const $dropdownMenu = $(`.dropdown-menu`);
+
+
+    // $('.dropdown-menu a').click(function() {
+    //     console.log($(this).attr('data-value'));
+    //     $(this).closest('.dropdown').find('input.countrycode')
+    //         .val('(' + $(this).attr('data-value') + ')');
+    // });
 
 });
 
