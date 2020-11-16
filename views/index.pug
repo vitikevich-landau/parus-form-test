@@ -7,10 +7,9 @@ block content
         hr
         form(id=`question-form` action=`api/verify-phone`)
             h5 Номер телефона
+                strong *
             div.form-group
-                //label(for="exampleInputPhone") Номер телефона
                 input(
-                    data-mask="+7 (000) 000 00 00"
                     name="phone"
                     type="text"
                     class="form-control "
@@ -22,8 +21,8 @@ block content
                 div(class="invalid-feedback d-none") Ошибка соединения с сервером
 
             h5 Имя
+                strong *
             div.input-group
-                //label(for="exampleInputName") Имя
                 input(
                     name="name"
                     type="text"
@@ -31,36 +30,16 @@ block content
                     id="exampleInputName"
                     autocomplete="off"
                     maxlength="30"
+                    required
                 )
-                //div(class="input-group-append")
-                //    button(
-                //        type="button"
-                //        class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
-                //        data-toggle="dropdown"
-                //        aria-haspopup="true"
-                //        aria-expanded="false"
-                //    )
-                //        span.sr-only Toggle Dropdown
-                //    div.dropdown-menu
-                //        a(class="dropdown-item" href="#") Action
-                //        a(class="dropdown-item" href="#") Another action
-                //        a(class="dropdown-item" href="#") Something else here
             br
             h5 Текст обращения
+                strong *
             div.form-group
-                //label(for="exampleFormControlTextarea1") Текст обращения
-                textarea(class="form-control" id="exampleFormControlTextarea1" rows="5")
-            button(type="submit" class="btn btn-primary") Отправить
-
-
-
-            //div.form-group
-            //    label(for="exampleInputName") Имя
-            //    input(
-            //        name="name"
-            //        type="text"
-            //        class="form-control"
-            //        id="exampleInputName"
-            //        autocomplete="off"
-            //        maxlength="30"
-            //    )
+                textarea(
+                    class="form-control"
+                    id="exampleFormControlMessage"
+                    rows="5"
+                    required
+                )
+            button(id="send_button" type="submit" class="btn btn-primary" disabled) Отправить

@@ -1,3 +1,8 @@
+strong {
+  color: red;
+  padding-left: .25rem;
+}
+
 .verifying {
   background-image: url("../images/verifying.svg") !important;
   border-color: #ced4da !important;
