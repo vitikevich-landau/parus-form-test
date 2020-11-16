@@ -16,7 +16,7 @@ const getData = async () => {
 
 /* GET home page. */
 router.get('/', async (req, res, next) => {
-    res.render('index', {title: 'Регистрация событий'});
+    res.render('index', {title: 'Задать вопрос'});
 });
 
 
