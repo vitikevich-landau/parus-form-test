@@ -43,6 +43,33 @@ function debounce(f, ms) {
 
 }
 
+/***
+ *
+ *  Можно попробовать добавить другие алгоритмы определения
+ *  пуста ли сторока (заполнение по маске)
+ */
+const inputIsNotEmpty = s => s.trim().length > 0;
+
+/***
+ *
+ *  Блокировка разблокировка кнопки отправки
+ */
+const required = {
+    phone: false,
+    name: false,
+    message: false,
+    isRequired: function () {
+        return this.phone && this.name && this.message;
+    },
+    lockUnlockButton: function ($button) {
+        if (required.isRequired()) {
+            $button.removeAttr(`disabled`);
+        } else {
+            $button.attr(`disabled`, true);
+        }
+    }
+};
+
 $(() => {
     const dropDownTemplate = `
         <div id="dropDown" class="input-group-append">
@@ -53,32 +80,36 @@ $(() => {
             </div>
         </div>
     `;
-    const dropDownItemTemplate = `<a class="dropdown-item" href="#">[title]</a>`;
+    const dropMenuItemTemplate = `<a class="dropdown-item" href="#">[title]</a>`;
 
 
     const $phoneInput = $(`#exampleInputPhone`);
     const $phoneValid = $(`.valid-feedback`);
     const $phoneInValid = $(`.invalid-feedback`);
     const $nameInput = $(`#exampleInputName`);
+    const $message = $(`#exampleFormControlMessage`);
 
     const $form = $(`#question-form`);
+    const $sendButton = $(`#send_button`);
 
+    /**
+     *  Отправка данных формы
+     * */
     $form.submit(e => {
         e.preventDefault();
         console.log(`prevented`);
     });
 
+    /***
+     *  Настройка jQuery Mask
+     */
     let jqxhr;
-    $phoneInput.on(`input`, throttle(e => {
-        const max_len = 18;
-        const target = e.target;
-        let value = target.value;
-
-        /**
-         *  Полностью заполнен, начинаем запрос на сервер
-         * */
-        if (value.length === max_len) {
-            console.log(value);
+    const options = {
+        onComplete: throttle(function (cep) {
+            /**
+             *  phone filed required
+             * */
+            required.phone = true;
 
             /**
              *  Отправка запроса на сервер
@@ -86,7 +117,7 @@ $(() => {
             jqxhr = $.ajax({
                 url: `api/verify-phone`,
                 method: `GET`,
-                data: {phone: value},
+                data: {phone: cep},
                 beforeSend: xhr => {
                     if (jqxhr) {
                         jqxhr.abort();
@@ -115,8 +146,7 @@ $(() => {
                             const $dropDownMenu = $(`.dropdown-menu`);
 
                             for (const name of names) {
-                                // console.log(name);
-                                $dropDownMenu.append(dropDownItemTemplate.replace(`[title]`, name));
+                                $dropDownMenu.append(dropMenuItemTemplate.replace(`[title]`, name));
                             }
 
 
@@ -134,7 +164,7 @@ $(() => {
 
                                 $nameInput.val(link.text());
                             });
-                        } else  {
+                        } else {
                             /**
                              *  Удаляем динамический контент
                              * */
@@ -158,6 +188,10 @@ $(() => {
                         $phoneInput.removeClass(`is-valid verifying`);
                         $phoneValid.addClass(`d-none`);
                         $nameInput.removeClass(`is-valid`);
+
+                        /**
+                         *  Может придётся удалить, что бы не затирал принудительно
+                         * */
                         $nameInput.val(``);
                     }
                 })
@@ -176,27 +210,47 @@ $(() => {
 
                     $phoneValid.addClass(`d-none`);
 
-                    $nameInput
-                        .removeClass(`is-valid`)
-                        .val(``);
+                    $nameInput.removeClass(`is-valid`)
+
+                    /**
+                     *  Может придётся удалить, что бы не затирал принудительно
+                     * */
+                    // $nameInput.val(``);
 
                     $phoneInValid.removeClass(`d-none`);
                 })
                 .always((jqXHR, textStatus, errorThrown) => {
-                    // console.log(jqXHR, textStatus, errorThrown)
                 });
+        }, 550),
+        onKeyPress: (cep, event, currentField, options) => {
+        },
+        onChange: cep => {
+            if(cep.length < 18) {
+                required.phone = false;
+            }
+
+            required.lockUnlockButton($sendButton);
+        },
+        onInvalid: (val, e, f, invalid, options) => {
         }
+    };
 
-    }, 550));
+    /***
+     *  Вешаем маску на input
+     */
+    $phoneInput.mask(`+7 (000) 000 00 00`, options);
 
-    // const $dropdownMenu = $(`.dropdown-menu`);
+    $nameInput.on(`input`, e => {
+        required.name = inputIsNotEmpty(e.target.value);
 
+        required.lockUnlockButton($sendButton);
+    });
 
-    // $('.dropdown-menu a').click(function() {
-    //     console.log($(this).attr('data-value'));
-    //     $(this).closest('.dropdown').find('input.countrycode')
-    //         .val('(' + $(this).attr('data-value') + ')');
-    // });
+    $message.on('input', e => {
+        required.message = inputIsNotEmpty(e.target.value);
+
+        required.lockUnlockButton($sendButton);
+    });
 
 });
 
