@@ -1,18 +1,6 @@
-var express = require('express');
-const delay = require(`../lib/delay`);
+const express = require(`express`);
 
-var router = express.Router();
-
-const getData = async () => {
-    let data;
-    try {
-        data = await delay();
-    } catch (e) {
-        console.error(e);
-    }
-
-    return data;
-};
+const router = express.Router();
 
 /* GET home page. */
 router.get('/', async (req, res, next) => {
