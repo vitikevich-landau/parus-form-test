@@ -56,21 +56,10 @@ const inputIsNotEmpty = s => s.trim().length > 0;
  */
 const required = {
     phone: false,
-    name: false,
-    message: false,
-    isRequired: function () {
-        return this.phone && this.name && this.message;
-    },
-    lockUnlockButton: function ($button) {
-        if (required.isRequired()) {
-            $button.removeAttr(`disabled`);
-        } else {
-            $button.attr(`disabled`, true);
-        }
-    }
 };
 
 $(() => {
+
     const dropDownTemplate = `
         <div id="dropDown" class="input-group-append">
             <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -107,7 +96,7 @@ $(() => {
     const options = {
         onComplete: throttle(function (cep) {
             /**
-             *  phone filed required
+             *  Если номер полностью ввели
              * */
             required.phone = true;
 
@@ -135,6 +124,7 @@ $(() => {
             })
                 .done((data, textStatus, jqXHR) => {
                     if (data.length > 0) {
+
                         const titles = [...new Set(data.map(v => v[`title`]))];
                         const names = [...new Set(data.map(v => v[`name`]))];
 
@@ -194,6 +184,7 @@ $(() => {
                          * */
                         $nameInput.val(``);
                     }
+
                 })
                 .fail((jqXHR, textStatus, errorThrown) => {
                     /**
@@ -225,11 +216,12 @@ $(() => {
         onKeyPress: (cep, event, currentField, options) => {
         },
         onChange: cep => {
-            if(cep.length < 18) {
+            /***
+             *  Если номер введён не полностью
+             */
+            if (cep.length < 18) {
                 required.phone = false;
             }
-
-            required.lockUnlockButton($sendButton);
         },
         onInvalid: (val, e, f, invalid, options) => {
         }
@@ -238,19 +230,24 @@ $(() => {
     /***
      *  Вешаем маску на input
      */
-    $phoneInput.mask(`+7 (000) 000 00 00`, options);
+    $phoneInput.mask(`+7 (000) 000 0000`, options);
 
-    $nameInput.on(`input`, e => {
-        required.name = inputIsNotEmpty(e.target.value);
+    /***
+     *
+     *  Интервал проверяющий заполненность полей ввода
+     */
+    const isFieldsIsNotEmpty = () =>
+        required.phone &&
+        inputIsNotEmpty($nameInput.val()) &&
+        inputIsNotEmpty($message.val());
 
-        required.lockUnlockButton($sendButton);
-    });
-
-    $message.on('input', e => {
-        required.message = inputIsNotEmpty(e.target.value);
-
-        required.lockUnlockButton($sendButton);
-    });
+    const lockUnlockButtonInterval = setInterval(() => {
+        if (isFieldsIsNotEmpty()) {
+            $sendButton.removeAttr(`disabled`);
+        } else {
+            $sendButton.attr(`disabled`, true);
+        }
+    }, 350);
 
 });
 
