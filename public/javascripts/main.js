@@ -89,6 +89,8 @@ $(() => {
         console.log(`prevented`);
     });
 
+
+    const throttleDelay = 550;
     /***
      *  Настройка jQuery Mask
      */
@@ -212,7 +214,7 @@ $(() => {
                 })
                 .always((jqXHR, textStatus, errorThrown) => {
                 });
-        }, 550),
+        }, throttleDelay),
         onKeyPress: (cep, event, currentField, options) => {
         },
         onChange: cep => {
@@ -241,13 +243,15 @@ $(() => {
         inputIsNotEmpty($nameInput.val()) &&
         inputIsNotEmpty($message.val());
 
+    const lockUnlockIntervalDelay = 350;
+
     const lockUnlockButtonInterval = setInterval(() => {
         if (isFieldsIsNotEmpty()) {
             $sendButton.removeAttr(`disabled`);
         } else {
             $sendButton.attr(`disabled`, true);
         }
-    }, 350);
+    }, lockUnlockIntervalDelay);
 
 });
 
