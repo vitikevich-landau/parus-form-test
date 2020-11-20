@@ -1,5 +1,6 @@
+const oracledb = require(`oracledb`);
+
 const getConnection = () => {
-    const oracledb = require(`oracledb`);
     const dbSettings = require(`../db/config`);
 
     return oracledb.getConnection({
@@ -46,6 +47,7 @@ const connectAndExecuteMany = async (sql, bindParams = {}, options = {}) => {
 };
 
 module.exports = {
+    oracledb,
     connectAndExecute,
     connectAndExecuteMany
 }
