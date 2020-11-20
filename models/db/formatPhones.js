@@ -1,43 +1,10 @@
 const {connectAndExecute, connectAndExecuteMany} = require(`./connection`);
-const delay = require(`../../lib/delay`);
 const {REGEX_MOBILE_7_PHONE} = require("../../lib/phones");
-const {
-    clearPhoneNumber,
-    formatPhoneNumber,
-    getMatchPhones,
-    REGEX_PHONE
-} = require("../../lib/phones");
-
-
-// const updatePhones = async (rn, column, value) => {
-//     return await connectAndExecute(`
-//         update ${TB_NAME} set ${column} = :value where RN = ${rn}
-//     `,
-//         [value],
-//         {autoCommit: true}
-//     );
-// };
-
-/***
- *
- *  Выборка, обновление и редактирование частями по 1 столбцу за раз
- *  Начиная от малого
- */
+const {formatPhoneNumber, REGEX_PHONE} = require("../../lib/phones");
 
 const TB_NAME = `MY_AGNLIST_TMP`;
-const COL_NAME = `PHONE`;
 
-
-const selectPhoneByRn = async rn => await connectAndExecute(`
-    select 
-        *
-    from 
-        ${TB_NAME}
-    where rn = :rn
-`, {rn}
-);
-
-const selectPhones = async () => await connectAndExecute(
+const select = async () => await connectAndExecute(
     `select * from ${TB_NAME}`,
     {},
     {/*maxRows: 300*/}
@@ -46,25 +13,27 @@ const selectPhones = async () => await connectAndExecute(
 
 const movedNotMatched = async () => {
     try {
-        const querySet = await selectPhones();
+        const querySet = await select();
         const {metaData, rows} = querySet;
-        const filtered = rows.filter(r => {
-            // return r[2] && r[3] && r[4]
-            return r[1] || r[2] || r[3] || r[4]
-        });
 
-        // console.log(filtered.length);
-        // return ;
+        const rnPos = metaData.findIndex(v => v.name === `RN`);
+        const agnCommentPos = metaData.findIndex(v => v.name === `AGN_COMMENT`);
+        const phonePos = metaData.findIndex(v => v.name === `PHONE`);
+        const phone2Pos = metaData.findIndex(v => v.name === `PHONE2`);
+        const faxPos = metaData.findIndex(v => v.name === `FAX`);
+        const telexPos = metaData.findIndex(v => v.name === `TELEX`);
+
+        const filtered = rows.filter(r => r[phonePos] || r[phone2Pos] || r[faxPos] || r[telexPos]);
 
         const bindings = [];
         for (let i = 0; i < filtered.length; i++) {
             const row = filtered[i];
-            let rn = row[0],
-                phone = row[1],
-                phone2 = row[2],
-                fax = row[3],
-                telex = row[4],
-                agn_comment = `${(row[5] || ``).trim()}`;
+            let rn = row[rnPos],
+                phone = row[phonePos],
+                phone2 = row[phone2Pos],
+                fax = row[faxPos],
+                telex = row[telexPos],
+                agn_comment = `${(row[agnCommentPos] || ``).trim()}`;
             agn_comment = agn_comment.length > 0 ? `${agn_comment}\n\n` : ``;
 
 
@@ -87,9 +56,6 @@ const movedNotMatched = async () => {
 
             bindings.push({rn, phone, phone2, fax, telex, agn_comment});
         }
-
-        // console.log(bindings)
-        // return;
 
         const res = await connectAndExecuteMany(
             `update 
@@ -115,60 +81,60 @@ const movedNotMatched = async () => {
 /***
  *  Format phones func
  */
-
 const formatPhones = async () => {
     try {
+        const agnlist = await select();
+        const {metaData, rows} = agnlist;
+        const neededColNames = [`RN`, `AGNFIRSTNAME`, `AGN_COMMENT`, `PHONE`, `PHONE2`, `FAX`, `TELEX`];
 
-        const querySet = await selectPhones();
-        const {metaData, rows} = querySet;
         /***
          *
          * skip first items
          */
-        const metaDataCols = metaData.map(v => v.name);
-        const cols = metaData.map(v => v.name).slice(1, metaData.length - 1);
-
-        for (const col of cols) {
-            const colIndex = metaDataCols.findIndex(v => v === col);
+        for (const colName of neededColNames.slice(3)) {
+            const colIndex = metaData.findIndex(v => v.name === colName);
+            console.log(colName, colIndex);
 
             const items = rows.filter(r => r[colIndex]);
             const bindingsPhone = items.map(
-                r => ({rn: r[0], phone: formatPhoneNumber(r[colIndex], false)})
+                r => ({rn: r[1], phone: formatPhoneNumber(r[colIndex])})
             );
 
             const res = await connectAndExecuteMany(
-                `update ${TB_NAME} set ${col} = :phone where RN = :rn`,
+                `update ${TB_NAME} set ${colName} = :phone where RN = :rn`,
                 bindingsPhone,
                 {autoCommit: true}
             );
 
             console.log(res);
         }
+
         /*---------------------------------------------------------------------------*/
 
         /***
          *
          *  Номера содержащие запятую (,) разбиты на двое
          */
-        const splitted = rows
-            .filter(r => r[1] && !r[2] && r[1].includes(`,`))
-            .map(r =>
-                r.map((v, i) => i === 1 ? v.split(`,`) : v)
-            );
+        const phonePos = metaData.findIndex(v => v.name === `PHONE`);
+        const phone2Pos = metaData.findIndex(v => v.name === `PHONE2`);
 
-        console.log(`splitted: ${splitted.length}`);
-        // console.log(splitted);
+        const splitted = rows
+            .filter(r => r[phonePos] && !r[phone2Pos] && r[phonePos].includes(`,`))
+            .map(r =>
+                r.map((v, i) => i === phonePos ? v.split(`,`) : v)
+            );
 
         /***
          *
          *  У которых точно совпадает 1 номер
          */
-        const isMatched = splitted.filter(r => r[1][0].match(REGEX_PHONE));
+        const isMatched = splitted.filter(r => r[phonePos][0].match(REGEX_PHONE));
 
-        const phones = isMatched.map(r => [r[0], r[1]]);
+        const rnPos = metaData.findIndex(v => v.name === `RN`);
+        const phones = isMatched.map(r => [r[rnPos], r[phonePos]]);
+
         const bindingsPhones = phones.map(r => {
             const [rn, phones] = r;
-            // const out = [rn, formatPhoneNumber(phones[0], false)];
             const out = {
                 rn,
                 phone: formatPhoneNumber(phones[0], false),
@@ -186,8 +152,6 @@ const formatPhones = async () => {
             return out;
         });
 
-        // console.log(bindPhones.slice(5000, 5500));
-
         const res = await connectAndExecuteMany(
             `update
                         ${TB_NAME}
@@ -202,16 +166,6 @@ const formatPhones = async () => {
 
         console.log(res);
         /*------------------------------------------------------------------*/
-
-        /***
-         *  double masked
-         */
-        // .filter(r => r[1].every(v => v.match(/[()]/)))
-        // .filter(r => r[1].every(v => v.match(REGEX_PHONE)))
-
-        // console.log(`isMatched: ${isMatched.length}`);
-
-        /*---------------------------------------------------------------------------*/
 
     } catch (e) {
         console.error(e);
