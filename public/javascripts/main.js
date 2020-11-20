@@ -122,6 +122,7 @@ $(() => {
                     $phoneInput
                         .removeClass(`is-invalid`)
                         .addClass(`is-valid verifying`);
+                    $nameInput.removeClass(`is-valid`);
                 }
             })
                 .done((data, textStatus, jqXHR) => {
@@ -132,30 +133,48 @@ $(() => {
 
                         if (data.length > 1) {
                             /**
-                             *  Добавляем динамический контент
+                             *  Удаляем динамический контент, если он был
                              * */
-                            $nameInput.after(dropDownTemplate);
-                            const $dropDownMenu = $(`.dropdown-menu`);
+                            $(`#dropDown`).remove();
 
-                            for (const name of names) {
-                                $dropDownMenu.append(dropMenuItemTemplate.replace(`[title]`, name));
+                            /***
+                             *  Если есть не пустые имена
+                             */
+                            if (names.some(v => v)) {
+                                /***
+                                 *  Если их 2 и более вешаем dropDownMenu
+                                 */
+                                if (names.length > 1) {
+                                    /***
+                                     *  Добавляем динамический контент
+                                     */
+                                    $nameInput.after(dropDownTemplate);
+                                    const $dropDownMenu = $(`.dropdown-menu`);
+
+                                    console.log(names);
+
+                                    for (const name of names) {
+                                        $dropDownMenu.append(dropMenuItemTemplate.replace(`[title]`, name));
+                                    }
+
+                                    const $dropdownMenuLinks = $(`.dropdown-menu a`);
+                                    const firstMenuTitle = $dropdownMenuLinks.first().text();
+
+                                    $nameInput.val(firstMenuTitle);
+
+                                    $dropdownMenuLinks.on(`click`, e => {
+                                        e.preventDefault();
+                                        const link = $(e.target);
+
+                                        $nameInput.val(link.text());
+                                    });
+                                } else {
+                                    $nameInput.val(names);
+                                }
+
+                                // $nameInput.val(names);
                             }
 
-
-                            const $dropdownMenuLinks = $(`.dropdown-menu a`);
-                            const firstMenuTitle = $dropdownMenuLinks.first().text();
-
-                            $nameInput.val(firstMenuTitle);
-
-                            /**
-                             *  Вешаем обработчики событий
-                             * */
-                            $dropdownMenuLinks.on(`click`, e => {
-                                e.preventDefault();
-                                const link = $(e.target);
-
-                                $nameInput.val(link.text());
-                            });
                         } else {
                             /**
                              *  Удаляем динамический контент
