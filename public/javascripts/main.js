@@ -171,9 +171,6 @@ $(() => {
                                 } else {
                                     $nameInput.val(names);
                                 }
-
-                                // $nameInput.val(names);
-
                             }
 
                         } else {
@@ -189,7 +186,7 @@ $(() => {
                         $phoneValid.removeClass(`d-none`)
                             .text(titles);
 
-                        if (names.length > 0) {
+                        if (names.some(v => v)) {
                             $nameInput.addClass(`is-valid`);
                         }
 
