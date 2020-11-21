@@ -174,10 +174,6 @@ $(() => {
 
                                 // $nameInput.val(names);
 
-                                /***
-                                 *  Если есть какие-либо имена привязанные к номеру
-                                 */
-                                $nameInput.addClass(`is-valid`)
                             }
 
                         } else {
@@ -193,7 +189,9 @@ $(() => {
                         $phoneValid.removeClass(`d-none`)
                             .text(titles);
 
-                        // $nameInput.addClass(`is-valid`)
+                        if (names.length > 0) {
+                            $nameInput.addClass(`is-valid`);
+                        }
 
                     } else {
                         /**
