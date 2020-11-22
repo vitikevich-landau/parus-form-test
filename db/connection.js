@@ -1,7 +1,7 @@
 const oracledb = require(`oracledb`);
 
 const getConnection = () => {
-    const dbSettings = require(`../db/config`);
+    const dbSettings = require(`./config`);
 
     return oracledb.getConnection({
         user: dbSettings.DB_USER,
