@@ -6,7 +6,7 @@ const verifyByPhone = async (req, res, next) => {
     const {phone} = req.query;
     const formatted = formatPhoneNumber(phone);
 
-    // console.log(phone, formatted);
+    console.log(req.query);
     const querySet = await clients.getByPhone(formatted);
     const {rows} = querySet;
     const answer = rows.map(r =>
