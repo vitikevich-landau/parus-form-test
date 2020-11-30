@@ -63,6 +63,7 @@ $(() => {
     const inputIsNotEmpty = s => s.trim().length > 0;
 
     const isFieldsIsNotEmpty = () =>
+        inputIsNotEmpty($phoneInput.val()) &&
         inputIsNotEmpty($nameInput.val()) &&
         inputIsNotEmpty($message.val());
 
@@ -190,7 +191,14 @@ $(() => {
                              * */
                             $(`#dropDown`).remove();
 
-                            $nameInput.val(names);
+                            if (names.some(v => v)) {
+                                $nameInput.val(names);
+                                /***
+                                 *  Эмитим событие после вставки
+                                 */
+                                $nameInput.trigger(`input`);
+                            }
+
                         }
 
                         $phoneInput.removeClass(`verifying`);
@@ -304,8 +312,8 @@ $(() => {
                 /***
                  *  Разблокировка кнопки
                  */
-                $sendButton.removeClass(`d-none`);
                 $spinnerButton.addClass(`d-none`);
+                $sendButton.removeClass(`d-none`);
             });
     });
 
