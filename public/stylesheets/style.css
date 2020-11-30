@@ -1,3 +1,7 @@
+.is-load {
+  padding-right: .3rem;
+}
+
 strong {
   color: red;
   padding-left: .25rem;

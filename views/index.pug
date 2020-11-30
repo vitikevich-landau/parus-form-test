@@ -5,7 +5,7 @@ block content
     div.container
         h2 #{title}
         hr
-        form(id=`question-form` action=`api/verify-phone`)
+        form(id=`question-form`)
             h5 Номер телефона
                 strong *
             div.form-group
@@ -38,9 +38,14 @@ block content
                 strong *
             div.form-group
                 textarea(
+                    name="text"
                     class="form-control"
                     id="exampleFormControlMessage"
                     rows="5"
                     required
                 )
             button(id="send_button" type="submit" class="btn btn-primary" disabled) Отправить
+            button(id="spinner_button" type="button" class="btn btn-primary d-none" disabled)
+                span(class="is-load") Отправка
+                span(class="spinner-border spinner-border-sm" role="status" aria-hidden="true")
+

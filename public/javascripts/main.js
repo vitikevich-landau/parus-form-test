@@ -43,22 +43,36 @@ function debounce(f, ms) {
 
 }
 
-/***
- *
- *  Можно попробовать добавить другие алгоритмы определения
- *  пуста ли сторока (заполнение по маске)
- */
-const inputIsNotEmpty = s => s.trim().length > 0;
-
-/***
- *
- *  Блокировка разблокировка кнопки отправки
- */
-const required = {
-    phone: false,
-};
 
 $(() => {
+    const $phoneInput = $(`#exampleInputPhone`);
+    const $phoneValid = $(`.valid-feedback`);
+    const $phoneInValid = $(`.invalid-feedback`);
+    const $nameInput = $(`#exampleInputName`);
+    const $message = $(`#exampleFormControlMessage`);
+
+    const $form = $(`#question-form`);
+    const $sendButton = $(`#send_button`);
+    const $spinnerButton = $(`#spinner_button`);
+
+    /***
+     *
+     *  Можно попробовать добавить другие алгоритмы определения
+     *  пуста ли сторока (заполнение по маске)
+     */
+    const inputIsNotEmpty = s => s.trim().length > 0;
+
+    const isFieldsIsNotEmpty = () =>
+        inputIsNotEmpty($nameInput.val()) &&
+        inputIsNotEmpty($message.val());
+
+    const lockUnlockButton = ($button) => {
+        if (isFieldsIsNotEmpty()) {
+            $button.removeAttr(`disabled`);
+        } else {
+            $button.attr(`disabled`, true);
+        }
+    };
 
     const dropDownTemplate = `
         <div id="dropDown" class="input-group-append">
@@ -72,24 +86,6 @@ $(() => {
     const dropMenuItemTemplate = `<a class="dropdown-item" href="#">[title]</a>`;
 
 
-    const $phoneInput = $(`#exampleInputPhone`);
-    const $phoneValid = $(`.valid-feedback`);
-    const $phoneInValid = $(`.invalid-feedback`);
-    const $nameInput = $(`#exampleInputName`);
-    const $message = $(`#exampleFormControlMessage`);
-
-    const $form = $(`#question-form`);
-    const $sendButton = $(`#send_button`);
-
-    /**
-     *  Отправка данных формы
-     * */
-    $form.submit(e => {
-        e.preventDefault();
-        console.log(`prevented`);
-    });
-
-
     const throttleDelay = 550;
     /***
      *  Настройка jQuery Mask
@@ -100,7 +96,7 @@ $(() => {
             /**
              *  Если номер полностью ввели
              * */
-            required.phone = true;
+            lockUnlockButton($sendButton);
 
             /**
              *  Отправка запроса на сервер
@@ -110,6 +106,9 @@ $(() => {
                 method: `GET`,
                 data: {phone: cep},
                 beforeSend: xhr => {
+                    /***
+                     *  Отмена операции, если запрос уже отпрален
+                     */
                     if (jqxhr) {
                         jqxhr.abort();
                     }
@@ -151,7 +150,7 @@ $(() => {
                                     $nameInput.after(dropDownTemplate);
                                     const $dropDownMenu = $(`.dropdown-menu`);
 
-                                    console.log(names);
+                                    // console.log(names);
 
                                     for (const name of names) {
                                         $dropDownMenu.append(dropMenuItemTemplate.replace(`[title]`, name));
@@ -161,12 +160,20 @@ $(() => {
                                     const firstMenuTitle = $dropdownMenuLinks.first().text();
 
                                     $nameInput.val(firstMenuTitle);
+                                    /***
+                                     *  Эмитим событие после вставки
+                                     */
+                                    $nameInput.trigger(`input`);
 
                                     $dropdownMenuLinks.on(`click`, e => {
                                         e.preventDefault();
                                         const link = $(e.target);
 
                                         $nameInput.val(link.text());
+                                        /***
+                                         *  Эмитим событие по клику
+                                         */
+                                        $nameInput.trigger(`input`);
                                     });
                                 } else {
                                     $nameInput.val(names);
@@ -232,7 +239,9 @@ $(() => {
                     $phoneInValid.removeClass(`d-none`);
                 })
                 .always((jqXHR, textStatus, errorThrown) => {
+
                 });
+
         }, throttleDelay),
         onKeyPress: (cep, event, currentField, options) => {
         },
@@ -241,7 +250,7 @@ $(() => {
              *  Если номер введён не полностью
              */
             if (cep.length < 18) {
-                required.phone = false;
+                $sendButton.attr(`disabled`, true);
             }
         },
         onInvalid: (val, e, f, invalid, options) => {
@@ -253,24 +262,48 @@ $(() => {
      */
     $phoneInput.mask(`+7 (000) 000 0000`, options);
 
-    /***
-     *
-     *  Интервал проверяющий заполненность полей ввода
-     */
-    const isFieldsIsNotEmpty = () =>
-        required.phone &&
-        inputIsNotEmpty($nameInput.val()) &&
-        inputIsNotEmpty($message.val());
+    $nameInput.on(`input`, e => {
+        lockUnlockButton($sendButton);
+    });
 
-    const lockUnlockIntervalDelay = 350;
+    $message.on(`input`, e => {
+        lockUnlockButton($sendButton);
+    });
 
-    const lockUnlockButtonInterval = setInterval(() => {
-        if (isFieldsIsNotEmpty()) {
-            $sendButton.removeAttr(`disabled`);
-        } else {
-            $sendButton.attr(`disabled`, true);
-        }
-    }, lockUnlockIntervalDelay);
+    /**
+     *  Отправка данных формы
+     * */
+    $form.submit(e => {
+        e.preventDefault();
+
+        $.ajax({
+            url: `api/send`,
+            method: `post`,
+            data: $form.serialize(),
+            beforeSend: xhr => {
+                console.log($form.serialize());
+                /***
+                 *  Блокировка кнопки
+                 */
+                $sendButton.addClass(`d-none`);
+                $spinnerButton.removeClass(`d-none`);
+
+            }
+        })
+            .done((data, textStatus, jqXHR) => {
+                console.log(`done`);
+            })
+            .fail((jqXHR, textStatus, errorThrown) => {
+                console.log(`fail`);
+            })
+            .always((jqXHR, textStatus, errorThrown) => {
+                /***
+                 *  Разблокировка кнопки
+                 */
+                $sendButton.removeClass(`d-none`);
+                $spinnerButton.addClass(`d-none`);
+            });
+    });
 
 });
 
