@@ -1,6 +1,6 @@
 const {oracledb, connectAndExecute} = require(`../db/connection`);
 
-class Employees {
+class Clients {
     async getByPhone(phone) {
         return await connectAndExecute(`
             select
@@ -35,6 +35,6 @@ class Employees {
 }
 
 module.exports = {
-    employees: new Employees(),
-    Employees
+    clients: new Clients(),
+    Clients
 };

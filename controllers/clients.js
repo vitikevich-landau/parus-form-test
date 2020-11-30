@@ -1,4 +1,4 @@
-const {employees} = require("../models/Employees");
+const {clients} = require(`../models/Clients`);
 const {formatPhoneNumber} = require(`../lib/phones`);
 const {delay} = require(`../lib/delay`);
 
@@ -6,8 +6,8 @@ const verifyByPhone = async (req, res, next) => {
     const {phone} = req.query;
     const formatted = formatPhoneNumber(phone);
 
-    console.log(phone, formatted);
-    const querySet = await employees.getByPhone(formatted);
+    // console.log(phone, formatted);
+    const querySet = await clients.getByPhone(formatted);
     const {rows} = querySet;
     const answer = rows.map(r =>
         ({
@@ -20,8 +20,21 @@ const verifyByPhone = async (req, res, next) => {
         })
     );
 
-    console.log(rows);
-    console.log(answer);
+    /***
+     *  Не обрабатывать запросы пришедшие с других ip - адресов
+     *
+     *
+     */
+    /***
+     *
+     *  req.ip
+     */
+    // const ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
+
+    // console.log(ip);
+
+    // console.log(rows);
+    // console.log(answer);
 
     /**
      *  Валидация длины телефонного номера
