@@ -177,6 +177,10 @@ $(() => {
                                     });
                                 } else {
                                     $nameInput.val(names);
+                                    /***
+                                     *  Эмитим событие после вставки
+                                     */
+                                    $nameInput.trigger(`input`);
                                 }
                             }
 
