@@ -13,13 +13,14 @@ block content
                     name="phone"
                     type="text"
                     class="form-control "
-                    id="exampleInputPhone"
+                    id="input_phone"
                     aria-describedby="validatedInputGroupPrepend"
                     autocomplete="off"
                     required
                 )
                 div(class="valid-feedback d-none") Имя организации, в случае верификации
                 div(class="invalid-feedback d-none") Ошибка соединения с сервером
+                input(name="company" id="input_company" hidden)
 
             h5 Имя
                 strong *
@@ -28,7 +29,7 @@ block content
                     name="name"
                     type="text"
                     class="form-control"
-                    id="exampleInputName"
+                    id="input_name"
                     autocomplete="off"
                     maxlength="30"
                     required
@@ -40,7 +41,7 @@ block content
                 textarea(
                     name="text"
                     class="form-control"
-                    id="exampleFormControlMessage"
+                    id="textarea_message"
                     rows="5"
                     required
                 )
