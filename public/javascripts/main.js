@@ -67,7 +67,7 @@ $(() => {
         inputIsNotEmpty($nameInput.val()) &&
         inputIsNotEmpty($message.val());
 
-    const lockUnlockButton = ($button) => {
+    const lockUnlockButton = $button => {
         if (isFieldsIsNotEmpty()) {
             $button.removeAttr(`disabled`);
         } else {
