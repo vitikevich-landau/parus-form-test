@@ -1,6 +1,6 @@
 const DB_USER = `parus`;
-const DB_PASSWORD = `z123`;
-const DB_CONNECTION_STRING = `192.168.1.125:1521/BUH`;
+const DB_PASSWORD = `123z`;
+const DB_CONNECTION_STRING = `192.168.1.112:1521/UDPPA`;
 
 
 module.exports = {
