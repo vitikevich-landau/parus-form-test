@@ -45,11 +45,12 @@ function debounce(f, ms) {
 
 
 $(() => {
-    const $phoneInput = $(`#exampleInputPhone`);
+    const $phoneInput = $(`#input_phone`);
+    const $companyInput = $(`#input_company`);
     const $phoneValid = $(`.valid-feedback`);
     const $phoneInValid = $(`.invalid-feedback`);
-    const $nameInput = $(`#exampleInputName`);
-    const $message = $(`#exampleFormControlMessage`);
+    const $nameInput = $(`#input_name`);
+    const $message = $(`#textarea_message`);
 
     const $form = $(`#question-form`);
     const $sendButton = $(`#send_button`);
@@ -205,6 +206,11 @@ $(() => {
                         $phoneValid.removeClass(`d-none`)
                             .text(titles);
 
+                        /***
+                         *  Заполнить поле hidden с организацями
+                         */
+                        $companyInput.val(titles);
+
                         if (names.some(v => v)) {
                             $nameInput.addClass(`is-valid`);
                         }
@@ -223,6 +229,7 @@ $(() => {
                          *  Может придётся удалить, что бы не затирал принудительно
                          * */
                         // $nameInput.val(``);
+                        $companyInput.val(``);
                     }
 
                 })
@@ -247,6 +254,7 @@ $(() => {
                      *  Может придётся удалить, что бы не затирал принудительно
                      * */
                     // $nameInput.val(``);
+                    $companyInput.val(``);
 
                     $phoneInValid.removeClass(`d-none`);
                 })
