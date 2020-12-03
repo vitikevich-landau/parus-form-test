@@ -106,14 +106,6 @@ $(() => {
             ? $button.removeAttr(`disabled`)
             : $button.attr(`disabled`, true);
 
-    /*{
-        if (isFieldsIsNotEmpty()) {
-            $button.removeAttr(`disabled`);
-        } else {
-            $button.attr(`disabled`, true);
-        }
-    };*/
-
     const throttleDelay = 550;
     /***
      *  Настройка jQuery Mask
