@@ -17,8 +17,6 @@ const register = async (req, res, next) => {
 
     // await questions.save(formattedPhone, name, text, company);
 
-    await delay();
-
     res.send({});
 }
 

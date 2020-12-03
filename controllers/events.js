@@ -5,8 +5,6 @@ const create = async (req, res, next) => {
 
     console.log(req.body);
 
-    await delay();
-
     res.send({});
 };
 

@@ -2,7 +2,21 @@ const {clients} = require(`../models/Clients`);
 const {formatPhoneNumber} = require(`../lib/phones`);
 const {delay} = require(`../lib/delay`);
 
+const {check, validationResult} = require('express-validator');
+
 const verifyByPhone = async (req, res, next) => {
+    /***
+     *  Если есть ошибки дальше запрос не обрабатываем
+     */
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        // res..json({errors: errors.array()});
+        res.status(422).send({});
+
+        return;
+    }
+
     const {phone} = req.query;
     const formatted = formatPhoneNumber(phone);
 
@@ -20,33 +34,7 @@ const verifyByPhone = async (req, res, next) => {
         })
     );
 
-    /***
-     *  Не обрабатывать запросы пришедшие с других ip - адресов
-     *
-     *
-     */
-    /***
-     *
-     *  req.ip
-     */
-    // const ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
-
-    // console.log(ip);
-
-    // console.log(rows);
-    // console.log(answer);
-
-    /**
-     *  Валидация длины телефонного номера
-     *
-     *  Не обрарабывать запросы если пришло что-то больше
-     *
-     *  Блокировка отправки с других поддоменов
-     * */
-
-    await delay();
-
-    res.send(answer);
+    res.send(answer.length ? answer : {});
 };
 
 module.exports = {
