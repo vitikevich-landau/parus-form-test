@@ -47,7 +47,7 @@ app.use(
 app.use('/', indexRouter);
 
 /***
- *  Принудительный delay на rout'ы api
+ *  Принудительный delay на rout'ы /api
  */
 app.use('/api', async (req, res, next) => {
    await delay(550, 2250);
