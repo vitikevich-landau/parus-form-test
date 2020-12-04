@@ -3,11 +3,11 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const rateLimit = require("express-rate-limit");
-
 var indexRouter = require('./routes/index');
 var apiRouter = require('./routes/api');
-const {delay} = require("./lib/delay");
+const {forceDelay} = require("./middlewares/requestDelay");
+const {setLimit} = require("./middlewares/reateLimiter");
+const {consoleLog} = require(`./middlewares/requestsLog`);
 
 var app = express();
 
@@ -25,35 +25,20 @@ app.use(express.static(path.join(__dirname, 'public')));
  *  Request limiter
  *
  */
-app.use(rateLimit({
-    windowsMs: 60 * 1000,
-    max: 25,
-    message: `Слишком частое обращение к серверу, ожидайте в течении минуты`
-    // headers: true
-}));
+app.use(setLimit);
 
 /**
  *  console log all request
  *  time and IP
  */
-app.use(
-    (req, res, next) => {
-      console.log(`${new Date()}, IP: ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`);
-
-      next();
-    }
-);
+app.use(consoleLog);
 
 app.use('/', indexRouter);
 
 /***
  *  Принудительный delay на rout'ы /api
  */
-app.use('/api', async (req, res, next) => {
-   await delay(550, 2250);
-
-    next();
-});
+app.use('/api', forceDelay);
 app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
