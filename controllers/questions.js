@@ -1,13 +1,23 @@
-const {delay} = require("../lib/delay");
+const {validationResult} = require('express-validator');
 const {formatPhoneNumber} = require("../lib/phones");
 const {questions} = require(`../models/Questions`);
+const {validate, sanitize} = require(`../services/questionRequestValidator`);
 
 const register = async (req, res, next) => {
+    await validate(req);
+    await sanitize(req);
+
     /***
-     *  Validation, formatting, clearing
-     *
-     *  htmlspecial chars
+     *  Если есть ошибки дальше запрос не обрабатываем
      */
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        res.status(422).json({errors: errors.array()});
+        // res.status(422).send({});
+
+        return;
+    }
 
     const {body} = req;
     const {phone, name, text, company} = body;

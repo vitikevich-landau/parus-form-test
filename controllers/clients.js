@@ -1,18 +1,19 @@
+const {validationResult} = require('express-validator');
 const {clients} = require(`../models/Clients`);
 const {formatPhoneNumber} = require(`../lib/phones`);
-const {delay} = require(`../lib/delay`);
-
-const {check, validationResult} = require('express-validator');
+const {validate} = require(`../services/clientRequestValidator`);
 
 const verifyByPhone = async (req, res, next) => {
+    await validate(req);
+
     /***
      *  Если есть ошибки дальше запрос не обрабатываем
      */
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        // res..json({errors: errors.array()});
-        res.status(422).send({});
+        res.status(422).json({errors: errors.array()});
+        // res.status(422).send({});
 
         return;
     }
