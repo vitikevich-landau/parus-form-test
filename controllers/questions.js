@@ -1,7 +1,7 @@
 const {validationResult} = require('express-validator');
 const {formatPhoneNumber} = require("../lib/phones");
 const {questions} = require(`../models/Questions`);
-const {validate, sanitize} = require(`../services/questionRequestValidator`);
+const {validate, sanitize} = require(`../validators/questionRequest`);
 
 const register = async (req, res, next) => {
     await validate(req);

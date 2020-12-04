@@ -1,7 +1,7 @@
 const {validationResult} = require('express-validator');
 const {clients} = require(`../models/Clients`);
 const {formatPhoneNumber} = require(`../lib/phones`);
-const {validate} = require(`../services/clientRequestValidator`);
+const {validate} = require(`../validators/clientRequest`);
 
 const verifyByPhone = async (req, res, next) => {
     await validate(req);
