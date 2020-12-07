@@ -322,6 +322,18 @@ $(() => {
     $form.submit(e => {
         e.preventDefault();
 
+        try {
+            grecaptcha.ready(function () {
+                grecaptcha.execute('reCAPTCHA_site_key', {action: 'submit'}).then(function (token) {
+                    // Add your logic to submit to your backend server here.
+
+                    console.log(token);
+                });
+            });
+        } catch (e) {
+            console.log(e);
+        }
+
         $.ajax({
             url: `api/send`,
             method: `post`,
