@@ -322,119 +322,129 @@ $(() => {
     $form.submit(e => {
         e.preventDefault();
 
+        const submitForm = (token = null) => {
+            $.ajax({
+                url: `api/send`,
+                method: `post`,
+                // data: $form.serialize(),
+                data: [...$form.serializeArray(), {name: `token`, value: token}],
+                beforeSend: xhr => {
+                    /***
+                     *  Блокировка кнопки
+                     */
+                    $sendButton.addClass(`d-none`);
+                    $spinnerButton.removeClass(`d-none`);
+
+                }
+            })
+                .done((data, textStatus, jqXHR) => {
+                    console.log(`done`);
+
+                    if ($alert) {
+                        $alert.remove();
+                    }
+
+                    /***
+                     *  Вставляем и показываем alert после успешной отправки
+                     *
+                     */
+                    $alert = $(`#success_send_alert`);
+                    /***
+                     *  Показываем только в том случае,
+                     *  если alert не присутствует на странице
+                     */
+                    if (!$alert.length) {
+                        $form.before(successAlertTemplate);
+
+                        $alert = $(`#success_send_alert`);
+
+                        $alert.removeClass(`d-none`);
+                        $alert.addClass(`show`);
+                    }
+
+                    /***
+                     *  Очищаем поля формы
+                     */
+                    $inputName.val(``);
+                    $inputPhone.val(``);
+                    $inputCompany.val(``);
+                    $textareaMessage.val(``);
+
+                    /***
+                     *  Эмитим событие изменения
+                     */
+                    $inputPhone.trigger(`input`);
+
+                    /***
+                     *  Убираем информационные классы верификации в случае удачной отправки
+                     *
+                     *  Удаляем динамический контент
+                     * */
+                    $(`#dropDown`).remove();
+
+                    $inputPhone
+                        .removeClass(`is-valid verifying`)
+                        .removeClass(`is-invalid`);
+                    $inputName.removeClass(`is-valid`);
+
+                    $phoneValid.addClass(`d-none`);
+                    $phoneInValid.addClass(`d-none`);
+
+
+                })
+                .fail((jqXHR, textStatus, errorThrown) => {
+                    console.log(`fail`);
+
+                    if ($alert) {
+                        $alert.remove();
+                    }
+
+                    /***
+                     *  Вставляем и показываем alert ошибка соединения с сервером
+                     *
+                     */
+                    $alert = $(`#error_send_alert`);
+                    /***
+                     *  Показываем только в том случае,
+                     *  если alert не присутствует на странице
+                     */
+                    if (!$alert.length) {
+                        $form.before(errorAlertTemplate);
+
+                        $alert = $(`#error_send_alert`);
+
+                        $alert.removeClass(`d-none`);
+                        $alert.addClass(`show`);
+                    }
+                })
+                .always((jqXHR, textStatus, errorThrown) => {
+                    console.log(`always:unlock-button`);
+                    /***
+                     *  Разблокировка кнопки
+                     */
+                    $spinnerButton.addClass(`d-none`);
+                    $sendButton.removeClass(`d-none`);
+                });
+        };
+
+        /***
+         *  ignore recapthca error message for host 192.168.1.132
+         */
         try {
-            grecaptcha.ready(function () {
-                grecaptcha.execute('reCAPTCHA_site_key', {action: 'submit'}).then(function (token) {
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6Lc4dfwZAAAAAB2wHs5hmA9SCTxuC6oThkc2-anR', {action: 'submit'}).then(function(token) {
                     // Add your logic to submit to your backend server here.
 
                     console.log(token);
+                    submitForm(token);
                 });
             });
-        } catch (e) {
-            console.log(e);
+        } catch (error) {
+            console.log(error);
+            submitForm();
         }
 
-        $.ajax({
-            url: `api/send`,
-            method: `post`,
-            data: $form.serialize(),
-            beforeSend: xhr => {
-                /***
-                 *  Блокировка кнопки
-                 */
-                $sendButton.addClass(`d-none`);
-                $spinnerButton.removeClass(`d-none`);
 
-            }
-        })
-            .done((data, textStatus, jqXHR) => {
-                console.log(`done`);
-
-                if ($alert) {
-                    $alert.remove();
-                }
-
-                /***
-                 *  Вставляем и показываем alert после успешной отправки
-                 *
-                 */
-                $alert = $(`#success_send_alert`);
-                /***
-                 *  Показываем только в том случае,
-                 *  если alert не присутствует на странице
-                 */
-                if (!$alert.length) {
-                    $form.before(successAlertTemplate);
-
-                    $alert = $(`#success_send_alert`);
-
-                    $alert.removeClass(`d-none`);
-                    $alert.addClass(`show`);
-                }
-
-                /***
-                 *  Очищаем поля формы
-                 */
-                $inputName.val(``);
-                $inputPhone.val(``);
-                $inputCompany.val(``);
-                $textareaMessage.val(``);
-
-                /***
-                 *  Эмитим событие изменения
-                 */
-                $inputPhone.trigger(`input`);
-
-                /***
-                 *  Убираем информационные классы верификации в случае удачной отправки
-                 *
-                 *  Удаляем динамический контент
-                 * */
-                $(`#dropDown`).remove();
-
-                $inputPhone
-                    .removeClass(`is-valid verifying`)
-                    .removeClass(`is-invalid`);
-                $inputName.removeClass(`is-valid`);
-
-                $phoneValid.addClass(`d-none`);
-                $phoneInValid.addClass(`d-none`);
-
-
-            })
-            .fail((jqXHR, textStatus, errorThrown) => {
-                console.log(`fail`);
-
-                if ($alert) {
-                    $alert.remove();
-                }
-
-                /***
-                 *  Вставляем и показываем alert ошибка соединения с сервером
-                 *
-                 */
-                $alert = $(`#error_send_alert`);
-                /***
-                 *  Показываем только в том случае,
-                 *  если alert не присутствует на странице
-                 */
-                if (!$alert.length) {
-                    $form.before(errorAlertTemplate);
-
-                    $alert = $(`#error_send_alert`);
-
-                    $alert.removeClass(`d-none`);
-                    $alert.addClass(`show`);
-                }
-            })
-            .always((jqXHR, textStatus, errorThrown) => {
-                console.log(`always:unlock-button`);
-                /***
-                 *  Разблокировка кнопки
-                 */
-                $spinnerButton.addClass(`d-none`);
-                $sendButton.removeClass(`d-none`);
-            });
     });
 
 });
