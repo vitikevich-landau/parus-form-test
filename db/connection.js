@@ -17,6 +17,7 @@ const connectAndExecute = async (sql, bindParams = {}, options = {}) => {
         return await connection.execute(sql, bindParams, options);
     } catch (error) {
         console.error(error);
+        throw error;
     } finally {
         if (connection) {
             try {
@@ -35,6 +36,7 @@ const connectAndExecuteMany = async (sql, bindParams = {}, options = {}) => {
         return await connection.executeMany(sql, bindParams, options);
     } catch (error) {
         console.error(error);
+        throw error;
     } finally {
         if (connection) {
             try {
