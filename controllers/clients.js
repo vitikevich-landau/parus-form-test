@@ -35,12 +35,9 @@ const verifyByPhone = async (req, res, next) => {
     const {rows} = querySet;
     const answer = rows.map(r =>
         ({
-            phone: r[1],
-            phone2: r[2],
-            fax: r[3],
-            telex: r[4],
-            name: r[5],
-            title: r[7],
+            phone: r[0],
+            name: r[1],
+            title: r[2],
         })
     );
 

@@ -3,26 +3,13 @@ const {oracledb, connectAndExecute} = require(`../db/connection`);
 class Clients {
     async getByPhone(phone) {
         return await connectAndExecute(`
-            select
-                a.rn, 
-                a.phone, 
-                a.phone2, 
-                a.fax, 
-                a.telex, 
-                a.agnfirstname, 
-                a.agnname, 
-                b.agnname
+           select
+                PHONE,
+                NAME,
+                TITLE
             from
-                MY_AGNLIST_TMP a
-            left join
-                CLNPERSONS c on c.PERS_AGENT = a.rn
-            left join
-                MY_AGNLIST_TMP b on b.rn = c.owner_agent
-            where
-                a.phone like :phone or
-                a.phone2 like :phone or
-                a.fax  like :phone or
-                a.telex like :phone
+                UDO_V_PA_WEBQUEST_CLIENTVERIFY
+            where PHONE = :phone
     `,
             {phone},
             {
