@@ -16,6 +16,10 @@ const connectAndExecute = async (sql, bindParams = {}, options = {}) => {
         connection = await getConnection();
         return await connection.execute(sql, bindParams, options);
     } catch (error) {
+        /***
+         *  Log error and throw up
+         *
+         */
         console.error(error);
         throw error;
     } finally {
@@ -35,6 +39,10 @@ const connectAndExecuteMany = async (sql, bindParams = {}, options = {}) => {
         connection = await getConnection();
         return await connection.executeMany(sql, bindParams, options);
     } catch (error) {
+        /***
+         *  Log error and throw up
+         *
+         */
         console.error(error);
         throw error;
     } finally {
