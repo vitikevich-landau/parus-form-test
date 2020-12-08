@@ -2,7 +2,7 @@ const {connectAndExecute, connectAndExecuteMany} = require(`../db/connection`);
 const {REGEX_MOBILE_7_PHONE} = require("../lib/phones");
 const {formatPhoneNumber, REGEX_PHONE} = require("../lib/phones");
 
-const TB_NAME = `MY_AGNLIST_TMP`;
+const TB_NAME = `AGNLIST`;
 
 const select = async () => await connectAndExecute(
     `select * from ${TB_NAME}`,
