@@ -25,9 +25,14 @@ const register = async (req, res, next) => {
 
     console.log(body);
 
-    // await questions.save(formattedPhone, name, text, company);
+    try {
+        await questions.save(formattedPhone, name, text, company);
 
-    res.send({});
+        res.send({});
+    } catch (e) {
+        res.status(404).send();
+    }
+
 }
 
 

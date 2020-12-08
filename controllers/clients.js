@@ -22,7 +22,16 @@ const verifyByPhone = async (req, res, next) => {
     const formatted = formatPhoneNumber(phone);
 
     console.log(req.query);
-    const querySet = await clients.getByPhone(formatted);
+    let querySet;
+
+    try {
+        querySet = await clients.getByPhone(formatted)
+    } catch (e) {
+        res.status(404).send();
+
+        return ;
+    }
+
     const {rows} = querySet;
     const answer = rows.map(r =>
         ({
